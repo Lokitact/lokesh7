@@ -2,8 +2,8 @@
 
 /* ------- # theme basic ------- */
 :root,
-[data-loki-theme=light],
-[data-loki-theme-color=success] {
+[data-loki-theme="light"],
+[data-loki-theme-color="success"] {
   --loki-background-color: #fff;
   --loki-text-color: #212529;
   --loki-tertiary-bg: #f8f9fa;
@@ -15,43 +15,51 @@
   --loki-info: #0dcaf0;
   --loki-theme-color: var(--loki-success);
   --loki-border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-  --loki-box-shadow: inset 2px 2px 2px var(--loki-tertiary-color), inset -2px -2px 2px var(--loki-tertiary-color);
-  --loki-box-shadow-hover: inset 2px 2px 2px var(--loki-theme-color), inset -2px -2px 2px var(--loki-theme-color);
-  --filter1: drop-shadow(-8px -8px 12px var(--loki-background-color)) drop-shadow(8px 8px 12px #C3C5C8);
-  --filter2: drop-shadow(-4px -4px 6px var(--loki-background-color)) drop-shadow(4px 4px 6px #C3C5C8);
-  --filter3: drop-shadow(-2px -2px 3px var(--loki-background-color)) drop-shadow(2px 2px 3px #c3c5c8);
+  --loki-box-shadow: inset 2px 2px 2px var(--loki-tertiary-color),
+    inset -2px -2px 2px var(--loki-tertiary-color);
+  --loki-box-shadow-hover: inset 2px 2px 2px var(--loki-theme-color),
+    inset -2px -2px 2px var(--loki-theme-color);
+  --filter1: drop-shadow(-8px -8px 12px var(--loki-background-color))
+    drop-shadow(8px 8px 12px #c3c5c8);
+  --filter2: drop-shadow(-4px -4px 6px var(--loki-background-color))
+    drop-shadow(4px 4px 6px #c3c5c8);
+  --filter3: drop-shadow(-2px -2px 3px var(--loki-background-color))
+    drop-shadow(2px 2px 3px #c3c5c8);
   --loki-wave: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" xmlns:xlink="http://www.w3.org/1999/xlink"%3E%3Cg stroke-linecap="none" stroke-width="227" stroke="brown" fill="none"%3E%3Cpath d="M0 160L34.3 170.7C68.6 181 137 203 206 202.7C274.3 203 343 181 411 154.7C480 128 549 96 617 112C685.7 128 754 192 823 213.3C891.4 235 960 213 1029 197.3C1097.1 181 1166 171 1234 170.7C1302.9 171 1371 181 1406 186.7L1440 192L1440 320L1405.7 320C1371.4 320 1303 320 1234 320C1165.7 320 1097 320 1029 320C960 320 891 320 823 320C754.3 320 686 320 617 320C548.6 320 480 320 411 320C342.9 320 274 320 206 320C137.1 320 69 320 34 320L0 320Z"%3E%3C/path%3E%3C/g%3E%3C/svg%3E');
   --loki-alert-color: #495057;
   --loki-alert-bg: #fcfcfd;
   --loki-alert-border-color: #e9ecef;
 }
 
-[data-loki-theme=dark] {
+[data-loki-theme="dark"] {
   --loki-background-color: #212529;
   --loki-text-color: #dee2e6;
   --loki-tertiary-bg: #2b3035;
   --loki-tertiary-color: rgba(222, 226, 230, 0.5);
-  --filter1: drop-shadow(-8px -8px 12px var(--loki-background-color)) drop-shadow(8px 8px 12px #373D44);
-  --filter2: drop-shadow(-4px -4px 6px var(--loki-background-color)) drop-shadow(4px 4px 6px #373D44);
-  --filter3: drop-shadow(-2px -2px 3px var(--loki-background-color)) drop-shadow(2px 2px 3px #373D44);
+  --filter1: drop-shadow(-8px -8px 12px var(--loki-background-color))
+    drop-shadow(8px 8px 12px #373d44);
+  --filter2: drop-shadow(-4px -4px 6px var(--loki-background-color))
+    drop-shadow(4px 4px 6px #373d44);
+  --filter3: drop-shadow(-2px -2px 3px var(--loki-background-color))
+    drop-shadow(2px 2px 3px #373d44);
   --loki-alert-color: #dee2e6;
   --loki-alert-bg: #1a1d20;
   --loki-alert-border-color: #343a40;
 }
 
-[data-loki-theme-color=warning] {
+[data-loki-theme-color="warning"] {
   --loki-theme-color: var(--loki-warning);
 }
 
-[data-loki-theme-color=danger] {
+[data-loki-theme-color="danger"] {
   --loki-theme-color: var(--loki-danger);
 }
 
-[data-loki-theme-color=primary] {
+[data-loki-theme-color="primary"] {
   --loki-theme-color: var(--loki-primary);
 }
 
-[data-loki-theme-color=info] {
+[data-loki-theme-color="info"] {
   --loki-theme-color: var(--loki-info);
 }
 
@@ -121,7 +129,7 @@
 }
 
 .dropdown-toggle::after {
-  border-top: .3em solid #fff;
+  border-top: 0.3em solid #fff;
 }
 
 .tooltip {
@@ -135,7 +143,7 @@ body {
   color: var(--loki-text-color);
   font-family: sans-serif;
   -webkit-text-size-adjust: 100%;
-  -webkit-tap-highlight-color: transparent
+  -webkit-tap-highlight-color: transparent;
 }
 
 a,
@@ -143,24 +151,30 @@ a:hover {
   color: var(--loki-theme-color);
   text-decoration: none;
   cursor: pointer;
-  transition: 0.3s
+  transition: 0.3s;
 }
 
 a:hover {
-  transform: scale(1.07)
+  transform: scale(1.07);
 }
 
 input,
 textarea {
-  outline-color: var(--loki-theme-color)
+  outline-color: var(--loki-theme-color);
 }
-
+input[type="range"] {
+  color: #00c853;
+}
+input::-webkit-slider-thumb,
+.form-range::-webkit-slider-thumb {
+  background-color: var(--loki-theme-color);
+}
 .loki-color {
-  color: var(--loki-text-color) !important
+  color: var(--loki-text-color) !important;
 }
 
 .loki-background {
-  background: var(--loki-theme-color) !important
+  background: var(--loki-theme-color) !important;
 }
 
 .btn-loki {
@@ -168,29 +182,29 @@ textarea {
 }
 
 /* ------- # wave animation ------- */
-.parallax>use {
-  animation: move-forever 25s cubic-bezier(.55, .5, .45, .5) infinite;
+.parallax > use {
+  animation: move-forever 25s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
 }
 
-.parallax>use:nth-child(1) {
+.parallax > use:nth-child(1) {
   animation-delay: -2s;
   animation-duration: 7s;
   opacity: 50%;
 }
 
-.parallax>use:nth-child(2) {
+.parallax > use:nth-child(2) {
   animation-delay: -3s;
   animation-duration: 10s;
   opacity: 64%;
 }
 
-.parallax>use:nth-child(3) {
+.parallax > use:nth-child(3) {
   animation-delay: -4s;
   animation-duration: 13s;
   opacity: 77%;
 }
 
-.parallax>use:nth-child(4) {
+.parallax > use:nth-child(4) {
   animation-delay: -5s;
   animation-duration: 20s;
   opacity: 89%;
@@ -213,7 +227,7 @@ textarea {
   margin: auto;
   filter: var(--filter1);
   border: 2px solid var(--loki-background-color);
-  border-radius: 7px
+  border-radius: 7px;
 }
 
 .show-container {
@@ -226,11 +240,11 @@ textarea {
   align-items: center;
   position: relative;
   width: 100%;
-  margin-bottom: 35px
+  margin-bottom: 35px;
 }
 
 .container-inside {
-  position: relative
+  position: relative;
 }
 
 .container-inside input,
@@ -253,17 +267,17 @@ textarea {
   background: var(--loki-tertiary-bg);
   border-radius: 0 2px 2px 0;
   border-left: 1px solid rgb(118, 118, 118);
-  cursor: pointer
+  cursor: pointer;
 }
 
 .form-check-input:focus {
   border-color: var(--loki-tertiary-bg);
-  box-shadow: 0 0 .27rem .10rem var(--loki-theme-color)
+  box-shadow: 0 0 0.27rem 0.1rem var(--loki-theme-color);
 }
 
 .form-check-input:checked {
   background-color: var(--loki-theme-color);
-  border-color: var(--loki-tertiary-bg)
+  border-color: var(--loki-tertiary-bg);
 }
 
 .themed-grid-col {
@@ -271,7 +285,7 @@ textarea {
   min-height: 100px;
   background: var(--loki-tertiary-bg);
   border: 2px solid var(--loki-background-color);
-  border-radius: 7px
+  border-radius: 7px;
 }
 
 .d-symbol {
@@ -328,11 +342,11 @@ textarea {
   font-weight: 700;
   background-color: var(--loki-theme-color);
   border-radius: 2px;
-  color: #FFF;
-  transition: opacity .5s ease;
-  pointer-events: none
+  color: #fff;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
 }
 
 .notifyBox.fadeOut {
-  opacity: 0
+  opacity: 0;
 }

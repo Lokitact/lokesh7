@@ -1657,6 +1657,59 @@
         },
       };
       conversions.setConvert();
+
+      
+      let contentPlace = 0;
+      /**  * count text for visible  */
+      function counts() {
+        if (
+          document.getElementsByClassName("inside-content")[contentPlace]
+            .value === ""
+        ) {
+          document.getElementsByClassName("inside-btn")[
+            contentPlace
+          ].style.display = "none";
+        } else {
+          document.getElementsByClassName("inside-btn")[
+            contentPlace
+          ].style.display = "flex";
+        }
+      }
+
+      /**  * copy to clipboard  */
+      function copyDataURI() {
+        let copyContent =
+          document.getElementsByClassName("copy-content")[contentPlace];
+        if (copyContent.value) {
+          navigator.clipboard.writeText(copyContent.value);
+          //copyContent.select();
+          //document.execCommand('copy');
+          if (document.getElementsByClassName("copy-hint")[contentPlace])
+            notifyBox(copyContent, "COPIED");
+        }
+      }
+
+      function elementPosition(el) {
+        var rect = el.getBoundingClientRect(),
+          scrollLeft =
+            window.pageXOffset || document.documentElement.scrollLeft,
+          scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      }
+
+      function notifyBox(el, msg) {
+        var CONTENT =
+          document.getElementsByClassName("copy-hint")[contentPlace];
+        var nBOX = document.createElement("div");
+        CONTENT.insertBefore(nBOX, CONTENT.firstChild);
+        nBOX.classList.add("notifyBox");
+        var msgToShow = document.createTextNode(msg);
+        nBOX.appendChild(msgToShow);
+        var elPosition = elementPosition(el);
+
+        setTimeout(() => nBOX.classList.add("fadeOut"), 2500);
+        setTimeout(() => CONTENT.removeChild(nBOX), 9500);
+      }
+    
     </script>
 
     <!-- ======= Theme ======= -->
@@ -1671,6 +1724,6 @@
     <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Template Main JS File -->
-    <script src="../assets/js/loki.js"></script>
+    <script type="module" src="../assets/js/loki.js"></script>
   </body>
 </html>

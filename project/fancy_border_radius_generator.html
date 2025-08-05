@@ -131,21 +131,24 @@
           <span class="generator__handle" id="right"></span>
           <span class="generator__handle" id="bottom"></span>
         </div>
-     
+
         <ul class="list-group list-group-flush mt-2">
           <li class="list-group-item">
             <div class="container-inside copy-hint">
-          <input
-            type="text"
-            class="inside-content copy-content counts-input p-1"
-            id="code"
-            style="font-size: 0.8rem; padding: 0.25rem 0.5rem"
-            disabled
-            placeholder="Genrate your passkey"
-            onkeyup="counts()"
-          />
-          <i class="bi bi-copy inside-btn d-flex" onclick="copyDataURI()"></i>
-        </div>
+              <textarea
+                rows="3"
+                type="text"
+                class="inside-content copy-content counts-input p-1"
+                id="code"
+                disabled
+                placeholder="Genrate your passkey"
+                onkeyup="counts()"
+              ></textarea>
+              <i
+                class="bi bi-copy btn btn-loki position-absolute bottom-0 end-0 me-3 mb-3"
+                onclick="copyDataURI()"
+              ></i>
+            </div>
           </li>
           <li
             class="list-group-item d-flex justify-content-between align-items-center"
@@ -178,9 +181,9 @@
 
       function setBorderRadius(state, shapeElem, codeElem) {
         const { top, bottom, left, right } = state;
-        const borderRadius = `${top}% ${100 - top}% ${
+        const borderRadius = `border-radius: ${top}% ${100 - top}% ${
           100 - bottom
-        }% ${bottom}% / ${left}% ${right}% ${100 - right}% ${100 - left}%`;
+        }% ${bottom}% / ${left}% ${right}% ${100 - right}% ${100 - left}%;`;
         shapeElem.style.borderRadius = borderRadius;
         codeElem.value = borderRadius;
       }
@@ -355,6 +358,57 @@
           colorPicker.value = storedColor;
         }
       });
+
+      let contentPlace = 0;
+      /**  * count text for visible  */
+      function counts() {
+        if (
+          document.getElementsByClassName("inside-content")[contentPlace]
+            .value === ""
+        ) {
+          document.getElementsByClassName("inside-btn")[
+            contentPlace
+          ].style.display = "none";
+        } else {
+          document.getElementsByClassName("inside-btn")[
+            contentPlace
+          ].style.display = "flex";
+        }
+      }
+
+      /**  * copy to clipboard  */
+      function copyDataURI() {
+        let copyContent =
+          document.getElementsByClassName("copy-content")[contentPlace];
+        if (copyContent.value) {
+          navigator.clipboard.writeText(copyContent.value);
+          //copyContent.select();
+          //document.execCommand('copy');
+          if (document.getElementsByClassName("copy-hint")[contentPlace])
+            notifyBox(copyContent, "COPIED");
+        }
+      }
+
+      function elementPosition(el) {
+        var rect = el.getBoundingClientRect(),
+          scrollLeft =
+            window.pageXOffset || document.documentElement.scrollLeft,
+          scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      }
+
+      function notifyBox(el, msg) {
+        var CONTENT =
+          document.getElementsByClassName("copy-hint")[contentPlace];
+        var nBOX = document.createElement("div");
+        CONTENT.insertBefore(nBOX, CONTENT.firstChild);
+        nBOX.classList.add("notifyBox");
+        var msgToShow = document.createTextNode(msg);
+        nBOX.appendChild(msgToShow);
+        var elPosition = elementPosition(el);
+
+        setTimeout(() => nBOX.classList.add("fadeOut"), 2500);
+        setTimeout(() => CONTENT.removeChild(nBOX), 9500);
+      }
     </script>
 
     <!-- ======= Theme ======= -->
@@ -369,6 +423,6 @@
     <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Template Main JS File -->
-    <script src="../assets/js/loki.js"></script>
+    <script type="module" src="../assets/js/loki.js"></script>
   </body>
 </html>

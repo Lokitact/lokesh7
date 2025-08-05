@@ -5,7 +5,7 @@ import { calculateAge } from "./ageCalculator.js";
   let lokeshData = null;
   async function loadLokeshData() {
     if (!lokeshData) {
-      const response = await fetch("assets/data/loki.json");
+      const response = await fetch("../../assets/data/loki.json");
       lokeshData = await response.json();
     }
   }
@@ -284,50 +284,40 @@ import { calculateAge } from "./ageCalculator.js";
 let contentPlace = 0;
 /**  * count text for visible  */
 function counts() {
-  if (
-    document.getElementsByClassName("inside-content")[contentPlace].value === ""
-  ) {
-    document.getElementsByClassName("inside-btn")[contentPlace].style.display =
-      "none";
+  if (document.getElementsByClassName("inside-content")[contentPlace].value === "") {
+    document.getElementsByClassName("inside-btn")[contentPlace].style.display = 'none';
   } else {
-    document.getElementsByClassName("inside-btn")[contentPlace].style.display =
-      "flex";
+    document.getElementsByClassName("inside-btn")[contentPlace].style.display = 'flex';
   }
 }
 
 /**  * copy to clipboard  */
-function copyDataURI(index = 0) {
-  const copyContent = document.getElementsByClassName("copy-content")[index];
-  const hintContainer = document.getElementsByClassName("copy-hint")[index];
-
-  if (copyContent && copyContent.value) {
-    navigator.clipboard
-      .writeText(copyContent.value)
-      .then(() => {
-        if (hintContainer) {
-          notifyBox(hintContainer, "COPIED");
-        }
-      })
-      .catch((err) => {
-        console.error("Copy failed:", err);
-      });
+function copyDataURI() {
+  let copyContent = document.getElementsByClassName("copy-content")[contentPlace];
+  if (copyContent.value) {
+    navigator.clipboard.writeText(copyContent.value);
+    //copyContent.select();
+    //document.execCommand('copy');
+    if (document.getElementsByClassName("copy-hint")[contentPlace])
+      notifyBox(copyContent, "COPIED");
   }
 }
 
-function notifyBox(container, msg) {
-  const nBOX = document.createElement("div");
+function elementPosition(el) {
+  var rect = el.getBoundingClientRect(),
+    scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+}
+
+function notifyBox(el, msg) {
+  var CONTENT = document.getElementsByClassName("copy-hint")[contentPlace];
+  var nBOX = document.createElement('div');
+  CONTENT.insertBefore(nBOX, CONTENT.firstChild);
   nBOX.classList.add("notifyBox");
-  nBOX.textContent = msg;
+  var msgToShow = document.createTextNode(msg);
+  nBOX.appendChild(msgToShow);
+  var elPosition = elementPosition(el);
 
-  container.insertBefore(nBOX, container.firstChild);
-
-  // Fade out animation
-  setTimeout(() => nBOX.classList.add("fadeOut"), 1500);
-
-  // Remove after animation
-  setTimeout(() => {
-    if (container.contains(nBOX)) {
-      container.removeChild(nBOX);
-    }
-  }, 3000);
+  setTimeout(() => nBOX.classList.add("fadeOut"), 2500);
+  setTimeout(() => CONTENT.removeChild(nBOX), 9500);
 }

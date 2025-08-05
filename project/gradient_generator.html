@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  data-loki-theme="auto"
+  data-loki-theme-color="green"
+  class="h-100"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CSS Gradient Generator</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="../assets/vendor/bootstrap/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="../assets/vendor/bootstrap-icons/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link href="../assets/css/loki.css" rel="stylesheet" />
+
+    <script>
+      document.documentElement.setAttribute(
+        "data-loki-theme-color",
+        localStorage.getItem("data-loki-theme-color")
+      );
+      document.documentElement.setAttribute(
+        "data-loki-theme",
+        localStorage.getItem("theme")
+      );
+      document.documentElement.setAttribute(
+        "data-bs-theme",
+        localStorage.getItem("theme")
+      );
+    </script>
+  </head>
+
+  <body class="d-flex flex-column h-100">
+    <div class="card border-loki m-auto" style="width: 20rem">
+      <div class="card-header border-loki py-3">
+        <h4 class="card-title text-center mb-3">CSS Gradient Generator</h4>
+        <div id="preview" class="w-100 rounded" style="height: 200px"></div>
+      </div>
+
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <label>Output:</label>
+            <div
+              class="btn-group float-end"
+              role="group"
+              aria-label="Output Type"
+            >
+              <input
+                type="radio"
+                class="btn-check"
+                name="outputType"
+                id="Modern"
+                value="Modern"
+                autocomplete="off"
+                checked
+              />
+              <label class="btn btn-outline-loki btn-sm" for="Modern"
+                >Modern</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="outputType"
+                id="Legacy"
+                value="Legacy (IE6+)"
+                autocomplete="off"
+              />
+              <label class="btn btn-outline-loki btn-sm" for="Legacy"
+                >Legacy (IE6+)</label
+              >
+            </div>
+
+            <div class="container-inside copy-hint mt-3">
+              <textarea
+                rows="5"
+                class="inside-content copy-content counts-input p-1"
+                id="cssOutput"
+                placeholder=""
+                onkeyup="counts()"
+              ></textarea>
+              <i
+                class="bi bi-copy btn btn-loki position-absolute bottom-0 end-0 me-3 mb-3"
+                onclick="copyDataURI()"
+                title="Copy CSS"
+              ></i>
+            </div>
+          </li>
+
+          <li class="list-group-item">
+            <label>Type:</label>
+            <div
+              class="btn-group float-end"
+              role="group"
+              aria-label="Gradient Type"
+            >
+              <input
+                type="radio"
+                class="btn-check"
+                name="gradientType"
+                id="linear"
+                value="linear"
+                autocomplete="off"
+                checked
+              />
+              <label class="btn btn-outline-loki btn-sm" for="linear"
+                >Linear</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="gradientType"
+                id="radial"
+                value="radial"
+                autocomplete="off"
+              />
+              <label class="btn btn-outline-loki btn-sm" for="radial"
+                >Radial</label
+              >
+            </div>
+          </li>
+
+          <li class="list-group-item" id="angleLabel">
+            <label>Angle:</label>
+            <span class="float-end d-flex gap-1">
+              <input
+                type="range"
+                id="angle"
+                min="0"
+                max="360"
+                value="90"
+                class="form-range rangeInput"
+              />
+              <input
+                type="number"
+                name="angle"
+                id="angleValue"
+                class="form-control form-control-sm"
+                style="width: 60px; text-align: center"
+                min="0"
+                max="360"
+                value="90"
+                step="1"
+              />
+            </span>
+          </li>
+
+          <li class="list-group-item px-0">
+            <div id="sliders" class="slider-container h-100"></div>
+            <div class="d-flex justify-content-center mt-2">
+              <button id="addStopBtn" class="btn btn-loki">Add Color</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-footer text-center border-loki">
+        <small class="text-muted">Designed By Lokesh</small>
+      </div>
+    </div>
+
+    <!-- ======= Theme ======= -->
+    <loki-theme
+      class="btn-loki position-fixed bottom-0 end-0 mb-3 me-3 rounded-2"
+    ></loki-theme>
+
+    <!-- JS Scripts -->
+    <script>
+      const angle = document.getElementById("angle");
+      const angleValue = document.getElementById("angleValue");
+      const angleLabel = document.getElementById("angleLabel");
+      const preview = document.getElementById("preview");
+      const cssOutput = document.getElementById("cssOutput");
+      const addStopBtn = document.getElementById("addStopBtn");
+      const slidersContainer = document.getElementById("sliders");
+
+      const colorStops = [
+        { color: "#007991", position: 0 },
+        { color: "#78FFD6", position: 50 },
+        { color: "#FFE259", position: 100 },
+      ];
+
+      let gradientType = "linear";
+
+      document
+        .querySelectorAll('input[name="gradientType"]')
+        .forEach((input) => {
+          input.addEventListener("change", (e) => {
+            if (e.target.checked) {
+              gradientType = e.target.value;
+              renderGradient();
+            }
+          });
+        });
+
+      document.querySelectorAll('input[name="outputType"]').forEach((input) => {
+        input.addEventListener("change", () => {
+          renderGradient();
+        });
+      });
+
+      function renderGradient() {
+        const angleVal = angle.value;
+        const stops = colorStops
+          .map((stop) => `${stop.color} ${stop.position}%`)
+          .join(", ");
+        const gradient =
+          gradientType === "linear"
+            ? `linear-gradient(${angleVal}deg, ${stops})`
+            : `radial-gradient(circle, ${stops})`;
+
+        preview.style.background = gradient;
+        cssOutput.value = `background: ${gradient};`;
+
+        // Toggle angle visibility
+        angleLabel.style.display = gradientType === "linear" ? "block" : "none";
+
+        // Output type
+        const outputType = document.querySelector(
+          'input[name="outputType"]:checked'
+        ).value;
+        let cssText = "";
+
+        if (outputType === "Modern") {
+          cssText += `background: ${gradient};`;
+        } else {
+          // Legacy (IE6+)
+          // Only use first and last color stops
+          const startColor = colorStops[0]?.color || "#000000";
+          const endColor =
+            colorStops[colorStops.length - 1]?.color || "#ffffff";
+
+          cssText += `/* Legacy IE6-9 fallback */\n`;
+          cssText += `background: ${startColor};\n`;
+          cssText += `filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='${startColor}', endColorStr='${endColor}', GradientType=${
+            gradientType === "linear" ? 1 : 0
+          });\n`;
+
+          cssText += `\n/* Modern Browsers */\n`;
+          cssText += `background: ${gradient};`;
+        }
+
+        cssOutput.value = cssText;
+      }
+
+      function renderSliders() {
+        slidersContainer.innerHTML = "";
+
+        colorStops.forEach((stop, index) => {
+          const stopEl = document.createElement("div");
+          stopEl.className = "d-flex align-items-center gap-1 mb-1";
+
+          stopEl.innerHTML = `
+      <input type="color" value="${stop.color}" data-index="${index}" class="form-control-sm form-control-color color-box rounded-circle p-0 w-50" />
+      <input type="text" value="${stop.color}" data-index="${index}" class="form-control form-control-sm color-hex p-1" />
+      <input type="range" min="0" max="100" value="${stop.position}" data-index="${index}" class="form-range rangeInput mt-1" />
+      <input type="number" min="0" max="100" value="${stop.position}" data-index="${index}" class="form-control color-pos p-1" />
+      <button type="button" class="btn btn-close btn-sm remove-stop" data-index="${index}" aria-label="Remove"></button>
+    `;
+
+          slidersContainer.appendChild(stopEl);
+        });
+
+        attachSliderEvents();
+      }
+
+      addStopBtn.addEventListener("click", () => {
+        const used = colorStops.map((s) => s.position).sort((a, b) => a - b);
+        let pos = 50;
+        for (let i = 1; i < used.length; i++) {
+          const gap = used[i] - used[i - 1];
+          if (gap >= 10) {
+            pos = Math.round(used[i - 1] + gap / 2);
+            break;
+          }
+        }
+        colorStops.push({ color: "#ffffff", position: pos });
+        renderSliders();
+        renderGradient();
+      });
+
+      angle.addEventListener("input", () => {
+        angleValue.value = angle.value;
+        renderGradient();
+      });
+
+      angleValue.addEventListener("input", () => {
+        let val = parseInt(angleValue.value);
+        val = Math.min(Math.max(val, 0), 360);
+        angle.value = val;
+        renderGradient();
+      });
+
+      function attachSliderEvents() {
+        slidersContainer.querySelectorAll(".color-box").forEach((input) => {
+          input.addEventListener("input", (e) => {
+            const idx = parseInt(e.target.dataset.index);
+            const hex = e.target.value;
+            colorStops[idx].color = hex;
+            slidersContainer.querySelector(
+              `.color-hex[data-index="${idx}"]`
+            ).value = hex;
+            renderGradient();
+          });
+        });
+
+        slidersContainer.querySelectorAll(".color-hex").forEach((input) => {
+          input.addEventListener("input", (e) => {
+            const idx = parseInt(e.target.dataset.index);
+            const hex = e.target.value;
+            colorStops[idx].color = hex;
+            slidersContainer.querySelector(
+              `.color-box[data-index="${idx}"]`
+            ).value = hex;
+            renderGradient();
+          });
+        });
+
+        slidersContainer.querySelectorAll(".rangeInput").forEach((input) => {
+          input.addEventListener("input", (e) => {
+            const idx = parseInt(e.target.dataset.index);
+            const val = parseInt(e.target.value);
+            colorStops[idx].position = val;
+            slidersContainer.querySelector(
+              `.color-pos[data-index="${idx}"]`
+            ).value = val;
+            renderGradient();
+          });
+        });
+
+        slidersContainer.querySelectorAll(".color-pos").forEach((input) => {
+          input.addEventListener("input", (e) => {
+            const idx = parseInt(e.target.dataset.index);
+            let val = parseInt(e.target.value);
+            val = Math.min(Math.max(val, 0), 100);
+            colorStops[idx].position = val;
+            slidersContainer.querySelector(
+              `.rangeInput[data-index="${idx}"]`
+            ).value = val;
+            renderGradient();
+          });
+        });
+
+        slidersContainer.querySelectorAll(".remove-stop").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const idx = parseInt(e.target.dataset.index);
+            colorStops.splice(idx, 1);
+            renderSliders(); // re-render everything after removal
+            renderGradient();
+          });
+        });
+      }
+
+      function counts() {
+        const el = document.getElementsByClassName("inside-content")[0];
+        const btn = document.getElementsByClassName("inside-btn")[0];
+        if (el && btn) btn.style.display = el.value ? "flex" : "none";
+      }
+
+      function copyDataURI() {
+        const el = document.getElementsByClassName("copy-content")[0];
+        if (el.value) {
+          navigator.clipboard.writeText(el.value);
+          notifyBox(el, "COPIED");
+        }
+      }
+
+      function notifyBox(el, msg) {
+        const container = document.getElementsByClassName("copy-hint")[0];
+        const box = document.createElement("div");
+        box.className = "notifyBox";
+        box.textContent = msg;
+        container.insertBefore(box, container.firstChild);
+        setTimeout(() => box.classList.add("fadeOut"), 2500);
+        setTimeout(() => container.removeChild(box), 9500);
+      }
+
+      // Initial Render
+      renderSliders();
+      renderGradient();
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="../assets/js/loki.js"></script>
+  </body>
+</html>
