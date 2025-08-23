@@ -267,7 +267,7 @@ input::-webkit-slider-thumb,
   background: var(--loki-tertiary-bg);
   border-radius: 0 2px 2px 0;
   border-left: 1px solid rgb(118, 118, 118);
-  cursor: pointer;
+  cursor: copy;
 }
 
 .form-check-input:focus {

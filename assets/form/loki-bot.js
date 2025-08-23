@@ -54,14 +54,14 @@ import { calculateAge } from "../js/ageCalculator.js";
   // Build and Send to API
   async function sendToLoki(message) {
     const data = await loadLokiData();
-
+    const { years } = calculateAge(data.basic_info.dob);
     const systemPrompt = `
 You are a helpful assistant named **Loki**. You must always refer to yourself as Loki.
 
 You only answer queries related to the person named **Lokesh**, whose profile is below:
 
 Name: ${data.basic_info.name}
-Age: ${calculateAge(data.basic_info.dob)}
+Age: ${years}
 Degree: ${data.basic_info.degree}
 Gender: ${data.basic_info.gender}
 Freelance: ${data.basic_info.freelance}
@@ -87,7 +87,7 @@ If a user asks about anything other than Lokesh, respond with:
 
     try {
       const res = await fetch(
-        "https://script.google.com/macros/s/AKfycbw3O6APFzzGB_VKT67VODheLzYy7yTBs3gQi4Vwn-WChykKc62U9bLlgrN2YbFbVrtlRg/exec",
+        "https://script.google.com/macros/s/AKfycbzOuuzKn397ZmQAVJpCC52R0pNzDTJ-Z8Tpb8obP-YXlV7mDrsgUfx6Fx5LpyknIu-c9w/exec",
         {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },

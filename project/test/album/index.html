@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Flipping Book</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .book-container {
+        perspective: 1500px;
+        position: relative;
+        margin-bottom: 30px;
+      }
+      .book {
+        width: 600px;
+        height: 400px;
+        position: relative;
+        transform-style: preserve-3d;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+      }
+      .page {
+        position: absolute;
+        width: 50%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        overflow: hidden;
+        background: white;
+        border: 1px solid #ddd;
+      }
+      .page.right {
+        right: 0;
+        transform-origin: left center;
+        border-radius: 0 10px 10px 0;
+        z-index: 2;
+      }
+      .page.left {
+        left: 0;
+        transform-origin: right center;
+        border-radius: 10px 0 0 10px;
+        z-index: 1;
+      }
+      .page-content {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .page-front {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      }
+      .page-back {
+        background: linear-gradient(135deg, #e3ffe7 0%, #d9ffdf 100%);
+        transform: rotateY(180deg);
+      }
+      .page.right.flipped {
+        transform: rotateY(-180deg);
+      }
+      .page.left.flipped {
+        transform: rotateY(180deg);
+      }
+      .page.left .page-content {
+        transform: scaleX(1);
+      }
+      .photo,
+      .photo-placeholder {
+        width: 220px;
+        height: 280px;
+        object-fit: cover;
+        border-radius: 15px;
+        border: 3px solid white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+      .photo-placeholder {
+        background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 3em;
+        color: #666;
+      }
+      .photo-placeholder .icon {
+        font-size: 4em;
+        margin-bottom: 10px;
+      }
+      .photo-placeholder .text {
+        font-size: 0.4em;
+        color: #888;
+        text-align: center;
+      }
+      .empty-page {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 2em;
+        color: #aaa;
+      }
+      .book-spine {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, #8b4513, #654321);
+        transform: translateX(-50%);
+        z-index: 10;
+        border-radius: 2px;
+      }
+      .controls {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+      button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 25px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .page-counter {
+        color: white;
+        font-size: 18px;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+      }
+      .demo-images {
+        display: none;
+      }
+      @media (max-width: 768px) {
+        .book {
+          width: 90vw;
+          height: calc(90vw * 2 / 3);
+          max-width: 500px;
+          max-height: 333px;
+        }
+        .photo,
+        .photo-placeholder {
+          width: calc(90vw * 0.3);
+          height: calc(90vw * 0.4);
+          max-width: 180px;
+          max-height: 240px;
+        }
+        .controls {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+      }
+      .cover-front {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        font-size: 1.8em;
+        font-weight: bold;
+        text-align: center;
+      }
+      .cover-back {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        text-align: center;
+      }
+      .page.right.flipped {
+  box-shadow: inset -10px 0 20px rgba(0,0,0,0.2);
+}
+.page.left.flipped {
+  box-shadow: inset 10px 0 20px rgba(0,0,0,0.2);
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="book-container">
+      <div class="book" id="book"><div class="book-spine"></div></div>
+    </div>
+    <div class="controls">
+      <button id="prevBtn" onclick="previousPage()">← Previous</button>
+      <div class="page-counter" id="pageCounter">Cover</div>
+      <button id="nextBtn" onclick="nextPage()">Next →</button>
+      <button id="resetBtn" onclick="resetBook()">Reset</button>
+    </div>
+    <script>
+      // Immutable photo list for reconstruction
+      const originalPhotos = [
+        "front-cover.jpg",
+        "1.jpg",
+        "2.jpg",
+        "3.jpg",
+        "4.jpg",
+        "5.jpg",
+        "6.jpg",
+        "back-cover.jpg",
+      ];
+
+      let photos;
+      let book, pages, leftPages, currentPage, totalPages;
+
+      // Helper function to create photo content
+      function createPhotoContent(photoSrc, photoIndex) {
+        if (photoSrc) {
+          return `<img src="${photoSrc}" class="photo" alt="Photo ${
+            photoIndex + 1
+          }" loading="lazy" onerror="this.parentNode.innerHTML='<div class=photo-placeholder><div class=icon>📷</div><div class=text>Photo ${
+            photoIndex + 1
+          }</div></div>'">`;
+        } else {
+          return `<div class="empty-page">📖</div>`;
+        }
+      }
+
+      // Clear all children nodes and internal state (always reconstruct DOM)
+      function clearBook() {
+        if (book) {
+          while (book.childNodes.length > 1) book.removeChild(book.lastChild); // keep the spine
+        }
+        pages = [];
+        leftPages = [];
+        currentPage = 0;
+        totalPages = 0;
+      }
+
+      // Create front cover (right side only)
+      function createFrontCover() {
+        // Empty left page to start
+        const emptyLeft = document.createElement("div");
+        emptyLeft.className = "page left";
+        emptyLeft.style.zIndex = 5;
+        emptyLeft.style.border = "none";
+        emptyLeft.style.background = "transparent";
+        emptyLeft.innerHTML = `<div class="page-content"></div>`;
+
+        // Front cover (right side)
+        const frontCover = document.createElement("div");
+        frontCover.className = "page right";
+        frontCover.style.zIndex = 20;
+
+        // Check if photos[0] looks like a front-cover image
+        if (photos.length > 0 && /front-cover/i.test(photos[0])) {
+          frontCover.innerHTML = `
+      <div class="page-content cover-front">
+        <img src="${photos[0]}" class="photo" alt="Front Cover"
+          onerror="this.parentNode.innerHTML='<div class=photo-placeholder><div class=icon>📕</div><div class=text>Front Cover</div></div>'">
+      </div>
+      <div class="page-content page-back">
+        <div class="cover-decoration">🌟</div>
+        <h2 style="color: #34495e; margin-bottom: 20px;">Welcome to My Album</h2>
+        <p style="color: #7f8c8d; text-align: center; line-height: 1.6;">
+          A collection of precious moments<br>
+          captured through the lens of time.<br><br>
+          <em>Turn the page to begin the journey...</em>
+        </p>
+        <div class="cover-decoration" style="margin-top: 30px;">📖</div>
+      </div>
+    `;
+          // Remove this "front-cover" photo from album photos
+          photos.shift();
+        } else {
+          // Default cover
+          frontCover.innerHTML = `
+      <div class="page-content cover-front">
+        <div class="cover-decoration">📸</div>
+        <div class="cover-title">My Photo Album</div>
+        <div class="cover-subtitle">Memories to Cherish</div>
+        <div class="cover-decoration">✨</div>
+      </div>
+      <div class="page-content page-back">
+        <div class="cover-decoration">🌟</div>
+        <h2 style="color: #34495e; margin-bottom: 20px;">Welcome to My Album</h2>
+        <p style="color: #7f8c8d; text-align: center; line-height: 1.6;">
+          A collection of precious moments<br>
+          captured through the lens of time.<br><br>
+          <em>Turn the page to begin the journey...</em>
+        </p>
+        <div class="cover-decoration" style="margin-top: 30px;">📖</div>
+      </div>
+    `;
+        }
+        book.appendChild(emptyLeft);
+        book.appendChild(frontCover);
+
+        leftPages.push(emptyLeft);
+        pages.push(frontCover);
+      }
+
+      // Create back cover (left side only)
+      function createBackCover() {
+        let backCoverHTML = `
+          <div class="page-content cover-back">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+              <div class="cover-decoration">💝</div>
+              <div class="back-cover-text">
+                "Every picture tells a story,<br>
+                every memory holds a piece<br>
+                of our hearts."<br><br>
+                <strong>The End</strong>
+              </div>
+              <div class="cover-decoration" style="margin-top: 20px;">🌅</div>
+            </div>
+          </div>
+        `;
+
+        if (
+          photos.length > 0 &&
+          /back-cover/i.test(photos[photos.length - 1])
+        ) {
+          backCoverHTML = `
+            <div class="page-content cover-back">
+              <img src="${
+                photos[photos.length - 1]
+              }" class="photo" alt="Back Cover"
+                onerror="this.parentNode.innerHTML='<div class=photo-placeholder><div class=icon>📕</div><div class=text>Back Cover</div></div>'">
+            </div>
+          `;
+        }
+
+        // Back cover (left side)
+        const backCover = document.createElement("div");
+        backCover.className = "page left";
+        backCover.style.zIndex = 5;
+        backCover.innerHTML = backCoverHTML;
+
+        // Empty right page at the end
+        const emptyRight = document.createElement("div");
+        emptyRight.className = "page right";
+        emptyRight.style.zIndex = 1;
+        emptyRight.style.display = "none";
+        emptyRight.style.border = "none";
+        emptyRight.style.background = "transparent";
+        emptyRight.innerHTML = `<div class="page-content" style="transform: rotateY(180deg);"></div>`;
+
+        book.appendChild(backCover);
+        book.appendChild(emptyRight);
+
+        leftPages.push(backCover);
+        pages.push(emptyRight);
+      }
+
+      // Create all spreads and covers freshly
+      function createAllPages() {
+        clearBook();
+        createFrontCover();
+
+        // Main photo spreads (remove covers for page loop)
+        const photoSet = [...photos];
+        // remove front cover if present
+        if (photoSet.length > 0 && /front-cover/i.test(photoSet[0]))
+          photoSet.shift();
+        // remove back cover if present
+        if (
+          photoSet.length > 0 &&
+          /back-cover/i.test(photoSet[photoSet.length - 1])
+        )
+          photoSet.pop();
+
+        if (photoSet.length > 0) {
+          const totalSpreads = Math.ceil(photoSet.length / 2);
+          for (let spread = 0; spread < totalSpreads; spread++) {
+            const leftPhotoIndex = spread * 2;
+            const rightPhotoIndex = spread * 2 + 1;
+            const nextLeftPhotoIndex = (spread + 1) * 2;
+
+            const leftPage = document.createElement("div");
+            leftPage.className = "page left";
+            leftPage.innerHTML = `
+              <div class="page-content page-front">
+                ${createPhotoContent(photoSet[leftPhotoIndex], leftPhotoIndex)}
+              </div>
+            `;
+            leftPage.style.zIndex = 5;
+            leftPage.style.display = "none";
+
+            const rightPage = document.createElement("div");
+            rightPage.className = "page right";
+            rightPage.style.zIndex = 10 - spread;
+
+            let rightContent =
+              rightPhotoIndex < photoSet.length
+                ? createPhotoContent(photoSet[rightPhotoIndex], rightPhotoIndex)
+                : `<div class="empty-page"></div>`;
+            let backContent =
+              nextLeftPhotoIndex < photoSet.length
+                ? createPhotoContent(
+                    photoSet[nextLeftPhotoIndex],
+                    nextLeftPhotoIndex
+                  )
+                : `<div class="empty-page">📖<br><small style="font-size:0.5em;">End of Album</small></div>`;
+
+            rightPage.innerHTML = `
+              <div class="page-content page-front">
+                ${rightContent}
+              </div>
+              <div class="page-content page-back">
+                ${backContent}
+              </div>
+            `;
+
+            book.appendChild(leftPage);
+            book.appendChild(rightPage);
+            leftPages.push(leftPage);
+            pages.push(rightPage);
+          }
+        }
+
+        createBackCover();
+        totalPages = pages.length;
+      }
+
+      function updateButtons() {
+        const counter = document.getElementById("pageCounter");
+        const resetBtn = document.getElementById("resetBtn");
+        document.getElementById("prevBtn").disabled = currentPage === 0;
+        document.getElementById("nextBtn").disabled =
+          currentPage >= totalPages - 1;
+        if (currentPage === 0) {
+          counter.textContent = "Front Cover";
+        } else if (currentPage === totalPages - 1) {
+          counter.textContent = "Back Cover";
+        } else {
+          counter.textContent = `Page ${currentPage} of ${totalPages - 1}`;
+        }
+        resetBtn.style.display = currentPage === 0 ? "none" : "inline-block";
+        // Show the correct left page
+        leftPages.forEach((leftPage, index) => {
+          leftPage.style.display = index === currentPage ? "block" : "none";
+        });
+      }
+
+      function updateZIndices() {
+        for (let i = 0; i < pages.length; i++) {
+          let z = 10 - i;
+          // Always leave front cover topmost, always leave left pages above right unflipped
+          if (i === 0) z = 20;
+          // If flipped, sink z-index, stay below unflipped right pages, except front cover
+          if (pages[i].classList.contains("flipped")) {
+            pages[i].style.zIndex = 1;
+          } else {
+            pages[i].style.zIndex = z;
+          }
+        }
+      }
+
+      function nextPage() {
+        if (currentPage >= totalPages - 1) return; // No flip past back cover
+        pages[currentPage].classList.add("flipped");
+        currentPage++;
+        updateZIndices();
+        updateButtons();
+      }
+
+      function previousPage() {
+        if (currentPage === 0) return; // Cannot go before front cover
+        currentPage--;
+        pages[currentPage].classList.remove("flipped");
+        updateZIndices();
+        updateButtons();
+      }
+
+      function resetBook() {
+        for (let p of pages) p.classList.remove("flipped");
+        currentPage = 0;
+        updateZIndices();
+        updateButtons();
+      }
+
+      function initializeBook() {
+        book = document.getElementById("book");
+        // Setup up-to-date photo array for this session
+        photos = [...originalPhotos];
+        // Ensure covers: front always first, back always last
+        let frontIndex = photos.findIndex((p) => /front-cover/i.test(p));
+        if (frontIndex > 0) {
+          const frontCoverPhoto = photos.splice(frontIndex, 1)[0];
+          photos.unshift(frontCoverPhoto);
+        }
+        let backIndex = photos.findIndex((p) => /back-cover/i.test(p));
+        if (backIndex !== -1 && backIndex !== photos.length - 1) {
+          const backCoverPhoto = photos.splice(backIndex, 1);
+          photos.push(backCoverPhoto);
+        }
+        createAllPages();
+        updateZIndices();
+        updateButtons();
+      }
+
+      // Keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") previousPage();
+        else if (e.key === "ArrowRight") nextPage();
+        else if (e.key === "Home") resetBook();
+      });
+
+      window.previousPage = previousPage;
+      window.nextPage = nextPage;
+      window.resetBook = resetBook;
+
+      // Initialize everything onload
+      initializeBook();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  data-loki-theme="auto"
+  data-loki-theme-color="green"
+  class="h-100"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Unsubscribe</title>
+
+    <!-- Favicons -->
+    <link href="./assets/img/favicon.png" rel="icon" />
+    <link href="./assets/img/favicon.png" rel="apple-touch-icon" />
+
+    <!-- Vendor CSS Files -->
+    <link href="./assets/vendor/aos/aos.css" rel="stylesheet" />
+    <link
+      href="./assets/vendor/bootstrap/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="./assets/vendor/bootstrap-icons/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Template Main CSS File -->
+    <link href="./assets/css/style.css" rel="stylesheet" />
+    <link href="./assets/css/loki.css" rel="stylesheet" />
+
+    <script>
+      document.documentElement.setAttribute(
+        "data-loki-theme-color",
+        localStorage.getItem("data-loki-theme-color")
+      );
+      document.documentElement.setAttribute(
+        "data-loki-theme",
+        localStorage.getItem("theme")
+      );
+      document.documentElement.setAttribute(
+        "data-bs-theme",
+        localStorage.getItem("theme")
+      );
+    </script>
+  </head>
+
+  <body class="d-flex flex-column h-100">
+    <div class="text-center m-auto" style="width: 27rem">
+      <div class="card border-loki">
+        <div class="card-header border-loki py-3">
+          <h2 class="card-title text-center mb-3">
+            Unsubscribe from our emails
+          </h2>
+        </div>
+        <div class="card-body">
+          <input
+            type="email"
+            id="email"
+            class="form-control mb-3 border-loki"
+            placeholder="Enter your email"
+          />
+          <button class="btn btn-loki w-100" onclick="unsubscribe()">
+            Unsubscribe
+          </button>
+          <div class="message" id="message"></div>
+        </div>
+      </div>
+      <a
+        href="index.html"
+        class="d-block mt-3 text-decoration-none"
+        >← Go back to Home</a
+      >
+    </div>
+
+    <script>
+      // Function to get URL parameter
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
+
+      let linkEmail = "";
+      window.addEventListener("DOMContentLoaded", () => {
+        linkEmail = getQueryParam("email");
+      });
+
+      function unsubscribe() {
+        const email = document.getElementById("email").value.trim();
+        const message = document.getElementById("message");
+
+        if (!email) {
+          message.textContent = "Please enter your email.";
+          message.style.color = "red";
+          return;
+        }
+
+        if (email.toLowerCase() !== linkEmail.toLowerCase()) {
+          message.textContent =
+            "Incorrect email ID. Please enter the correct email.";
+          message.style.color = "red";
+          return;
+        }
+
+        fetch(
+          "https://script.google.com/macros/s/AKfycbzOuuzKn397ZmQAVJpCC52R0pNzDTJ-Z8Tpb8obP-YXlV7mDrsgUfx6Fx5LpyknIu-c9w/exec",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type: "unsubscribe", email }),
+            mode: "no-cors",
+          }
+        )
+          .then((data) => {
+            message.textContent = data.message;
+            message.style.color = data.status === "success" ? "green" : "red";
+            if (data.status === "success")
+              document.getElementById("email").value = "";
+            // Unsubscribe successful
+            //Your unsubscribe request has been successfully accepted!
+          })
+          .catch((err) => {
+            message.textContent = "Error unsubscribing. Please try again.";
+            message.style.color = "red";
+            console.error(err);
+          });
+      }
+    </script>
+
+    <!-- ======= Theme ======= -->
+    <loki-theme
+      class="btn-loki position-fixed bottom-0 end-0 mb-3 me-3 rounded-2 z-3 d-none"
+    ></loki-theme>
+
+    <!-- Vendor JS Files -->
+    <script src="./assets/vendor/aos/aos.js"></script>
+    <script src="./assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Template Main JS File -->
+    <script type="module" src="../assets/js/loki.js"></script>
+  </body>
+</html>

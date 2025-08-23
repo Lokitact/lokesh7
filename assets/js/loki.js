@@ -234,8 +234,9 @@ import { calculateAge } from "./ageCalculator.js";
   /**  * age counted  */
   class MyAge extends HTMLElement {
     connectedCallback() {
-      this.innerHTML = `${calculateAge(lokeshData.basic_info.dob)} Years`;
-    }
+     const { years } = calculateAge(lokeshData.basic_info.dob);
+this.innerHTML = `${years} Years`;
+ }
   }
 
   await loadLokeshData();

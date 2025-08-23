@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en" data-loki-theme="auto" data-loki-theme-color="green">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>email generator</title>
+
+    <!-- Vendor CSS Files -->
+    <link
+      href="../assets/vendor/bootstrap/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="../assets/vendor/bootstrap-icons/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Template Main CSS File -->
+    <link href="../assets/css/loki.css" rel="stylesheet" />
+    <script>
+      document.documentElement.setAttribute(
+        "data-loki-theme-color",
+        localStorage.getItem("data-loki-theme-color")
+      );
+      document.documentElement.setAttribute(
+        "data-loki-theme",
+        localStorage.getItem("theme")
+      );
+      document.documentElement.setAttribute(
+        "data-bs-theme",
+        localStorage.getItem("theme")
+      );
+    </script>
+
+    <style>
+      body {
+        height: 100vh;
+      }
+
+      .left-panel-item {
+        max-width: 80px;
+        max-height: 80px;
+        padding: 10px;
+        text-align: center;
+        cursor: grab;
+        user-select: none;
+        transition: all 0.2s;
+      }
+
+      .left-panel-item:hover {
+        border-color: var(--loki-theme-color);
+        transform: translateY(-2px);
+      }
+
+      .left-panel-item:active {
+        cursor: grabbing;
+      }
+
+      .paragraph-item {
+        cursor: pointer;
+        padding: 8px;
+        margin: 4px 0;
+        border-radius: 4px;
+        transition: all 0.2s;
+        min-height: 30px;
+      }
+
+      .paragraph-item:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+
+      .paragraph-item.selected {
+        outline: 2px dashed var(--loki-theme-color);
+      }
+
+      .paragraph-item[contenteditable="true"]:focus {
+        outline: 2px solid var(--loki-theme-color);
+      }
+
+      .canvas-area {
+        min-height: 500px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .tools-panel {
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .drop-zone {
+        border-radius: 8px;
+        padding: 40px;
+        text-align: center;
+        color: #6c757d;
+        transition: all 0.3s;
+      }
+
+      .drop-zone.drag-over {
+        border-color: var(--loki-theme-color);
+        background-color: var(--loki-tertiary-color);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container-fluid h-100">
+      <div class="row h-100 g-3">
+        <!-- Left Panel - Elements -->
+        <div class="col-2">
+          <div
+            class="tools-panel p-3 d-grid gap-2 overflow-auto justify-content-center"
+          >
+            <div class="left-panel-item card" draggable="true" data-type="text">
+              <i class="bi bi-fonts"></i>
+              <div class="small mt-1">Text</div>
+            </div>
+            <div
+              class="left-panel-item card"
+              draggable="true"
+              data-type="image"
+            >
+              <i class="bi bi-image"></i>
+              <div class="small mt-1">Image</div>
+            </div>
+            <div
+              class="left-panel-item card"
+              draggable="true"
+              data-type="button"
+            >
+              <i class="bi bi-hand-index"></i>
+              <div class="small mt-1">Button</div>
+            </div>
+            <div
+              class="left-panel-item card"
+              draggable="true"
+              data-type="table"
+            >
+              <i class="bi bi-table"></i>
+              <div class="small mt-1">Table</div>
+            </div>
+            <div class="left-panel-item card" draggable="true" data-type="list">
+              <i class="bi bi-list-ul"></i>
+              <div class="small mt-1">List</div>
+            </div>
+            <div
+              class="left-panel-item card"
+              draggable="true"
+              data-type="divider"
+            >
+              <i class="bi bi-hr"></i>
+              <div class="small mt-1">Divider</div>
+            </div>
+            <div
+              class="left-panel-item card"
+              draggable="true"
+              data-type="spacer"
+            >
+              <i class="bi bi-arrows-expand"></i>
+              <div class="small mt-1">Spacer</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="col-6">
+          <div class="canvas-area p-4 h-100" id="canvas">
+            <div class="drop-zone" id="dropZone">
+              <i class="bi bi-plus-circle fs-1 mb-2"></i>
+              <div>Drag elements here to start building your email</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel - Tools -->
+        <div class="col-4">
+          <div class="tools-panel p-2 scroll" id="toolsPanel">
+            <!-- Text Tools -->
+            <div class="d-none" id="textTools">
+              <h6 class="mb-3 text-muted">Text Settings</h6>
+
+              <!-- Element Type -->
+              <div class="mb-3">
+                <label class="form-label small text-muted">Element Type</label>
+                <div class="btn-group w-100 mb-1" role="group">
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="elementType"
+                    id="typeP"
+                    checked
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="typeP"
+                    >P</label
+                  >
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="elementType"
+                    id="typeH1"
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="typeH1"
+                    >H1</label
+                  >
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="elementType"
+                    id="typeH2"
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="typeH2"
+                    >H2</label
+                  >
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="elementType"
+                    id="typeH3"
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="typeH3"
+                    >H3</label
+                  >
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="elementType"
+                    id="typeH4"
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="typeH4"
+                    >H4</label
+                  >
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="elementType"
+                    id="typeH5"
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="typeH5"
+                    >H5</label
+                  >
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="elementType"
+                    id="typeH6"
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="typeH6"
+                    >H6</label
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Image Tools -->
+            <div class="d-none" id="imageTools">
+              <h6 class="mb-3">Image Settings</h6>
+
+              <!-- URL -->
+              <div class="mb-3">
+                <label class="form-label small text-muted">Image URL</label>
+                <input
+                  type="url"
+                  id="imageUrl"
+                  class="form-control"
+                  placeholder="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXp-_34fZToLr03e5EX2ulmep2oBTO9kL4hQ&s"
+                />
+                <button class="btn btn-loki btn-sm mt-2 w-100" id="updateImage">
+                  Update Image
+                </button>
+              </div>
+
+              <!-- Size -->
+              <div class="mb-3">
+                <label class="form-label small text-muted">Size</label>
+                <select class="form-select" id="imageSize">
+                  <option value="25%">Small (25%)</option>
+                  <option value="50%" selected>Medium (50%)</option>
+                  <option value="75%">Large (75%)</option>
+                  <option value="100%">Full Width</option>
+                </select>
+              </div>
+
+              <!-- Alignment -->
+              <div class="mb-3">
+                <label class="form-label small text-muted">Alignment</label>
+                <div class="btn-group w-100" role="group">
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="imgAlign"
+                    id="imgAlignLeft"
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="imgAlignLeft">
+                    <i class="bi bi-text-left"></i>
+                  </label>
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="imgAlign"
+                    id="imgAlignCenter"
+                  />
+                  <label
+                    class="btn btn-outline-loki btn-sm"
+                    for="imgAlignCenter"
+                  >
+                    <i class="bi bi-text-center"></i>
+                  </label>
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="imgAlign"
+                    id="imgAlignRight"
+                  />
+                  <label
+                    class="btn btn-outline-loki btn-sm"
+                    for="imgAlignRight"
+                  >
+                    <i class="bi bi-text-right"></i>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Shape -->
+              <div class="mb-3">
+                <label class="form-label small text-muted">Shape</label>
+                <div class="btn-group w-100" role="group">
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="imgShape"
+                    id="shapeDefault"
+                    checked
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="shapeDefault"
+                    >Square</label
+                  >
+
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="imgShape"
+                    id="shapeRounded"
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="shapeRounded"
+                    >Rounded</label
+                  >
+
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="imgShape"
+                    id="shapeCircle"
+                  />
+                  <label class="btn btn-outline-loki btn-sm" for="shapeCircle"
+                    >Circle</label
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Button Tools -->
+            <div class="d-none" id="buttonTools">
+              <h6 class="mb-3">Button Settings</h6>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted">Button Text</label>
+                <input
+                  type="text"
+                  id="buttonText"
+                  class="form-control form-control-sm"
+                  value="Click Here"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted">Link URL</label>
+                <input
+                  type="url"
+                  id="buttonUrl"
+                  class="form-control form-control-sm"
+                  placeholder="https://example.com"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted">Style</label>
+                <select class="form-select form-select-sm" id="buttonStyle">
+                  <option value="btn-primary" selected>Primary</option>
+                  <option value="btn-secondary">Secondary</option>
+                  <option value="btn-success">Success</option>
+                  <option value="btn-danger">Danger</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Table Tools -->
+            <div class="d-none" id="tableTools">
+              <h6 class="mb-3">Table Settings</h6>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted">Rows</label>
+                <input
+                  type="number"
+                  id="tableRows"
+                  class="form-control form-control-sm"
+                  value="3"
+                  min="2"
+                  max="10"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted">Columns</label>
+                <input
+                  type="number"
+                  id="tableCols"
+                  class="form-control form-control-sm"
+                  value="3"
+                  min="2"
+                  max="6"
+                />
+              </div>
+
+              <div class="mb-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="tableHeader"
+                    checked
+                  />
+                  <label class="form-check-label" for="tableHeader">
+                    Include Header Row
+                  </label>
+                </div>
+              </div>
+
+              <button class="btn btn-loki btn-sm w-100" id="updateTable">
+                Update Table
+              </button>
+            </div>
+
+            <!-- List Tools -->
+            <div class="d-none" id="listTools">
+              <h6 class="mb-3">List Settings</h6>
+              <div class="d-flex gap-2">
+                <div class="mb-3">
+                  <label class="form-label small text-muted">List Type</label>
+                  <select class="form-select form-select-sm" id="listType">
+                    <option value="ul" selected>Bulleted List</option>
+                    <option value="ol">Numbered List</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small text-muted">Items</label>
+                  <input
+                    type="number"
+                    id="listItems"
+                    class="form-control form-control-sm"
+                    value="3"
+                    min="1"
+                    max="10"
+                  />
+                </div>
+              </div>
+
+              <button class="btn btn-loki btn-sm w-100 mb-3" id="updateList">
+                Update List
+              </button>
+            </div>
+
+            <!-- Spacer Tools -->
+            <div class="d-none" id="spacerTools">
+              <h6 class="mb-3">Spacer Settings</h6>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted">Height</label>
+                <select class="form-select form-select-sm" id="spacerHeight">
+                  <option value="10px">Small (10px)</option>
+                  <option value="20px" selected>Medium (20px)</option>
+                  <option value="30px">Large (30px)</option>
+                  <option value="40px">Extra Large (40px)</option>
+                  <option value="60px">Huge (60px)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Text Tools -->
+            <div class="d-none" id="textStyleTools">
+              <!-- Text Formatting -->
+              <div class="mb-3">
+                <label class="form-label small text-muted">Formatting</label>
+                <div class="btn-group w-100 mb-2" role="group">
+                  <input type="checkbox" class="btn-check" id="formatBold" />
+                  <label class="btn btn-outline-loki btn-sm" for="formatBold"
+                    ><strong>B</strong></label
+                  >
+                  <input type="checkbox" class="btn-check" id="formatItalic" />
+                  <label class="btn btn-outline-loki btn-sm" for="formatItalic"
+                    ><em>I</em></label
+                  >
+                  <input
+                    type="checkbox"
+                    class="btn-check"
+                    id="formatUnderline"
+                  />
+                  <label
+                    class="btn btn-outline-loki btn-sm"
+                    for="formatUnderline"
+                    ><u>U</u></label
+                  >
+                  <input type="checkbox" class="btn-check" id="formatStrike" />
+                  <label class="btn btn-outline-loki btn-sm" for="formatStrike"
+                    ><s>S</s></label
+                  >
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <!-- Text Alignment -->
+                <div class="mb-3">
+                  <label class="form-label small text-muted">Alignment</label>
+                  <div class="btn-group w-100" role="group">
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="textAlign"
+                      id="alignLeft"
+                    />
+                    <label class="btn btn-outline-loki btn-sm" for="alignLeft"
+                      ><i class="bi bi-text-left"></i
+                    ></label>
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="textAlign"
+                      id="alignCenter"
+                    />
+                    <label class="btn btn-outline-loki btn-sm" for="alignCenter"
+                      ><i class="bi bi-text-center"></i
+                    ></label>
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="textAlign"
+                      id="alignRight"
+                    />
+                    <label class="btn btn-outline-loki btn-sm" for="alignRight"
+                      ><i class="bi bi-text-right"></i
+                    ></label>
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="textAlign"
+                      id="alignJustify"
+                    />
+                    <label
+                      class="btn btn-outline-loki btn-sm"
+                      for="alignJustify"
+                      ><i class="bi bi-justify"></i
+                    ></label>
+                  </div>
+                </div>
+
+                <!-- Text Indent -->
+                <div class="mb-3">
+                  <label class="form-label small text-muted">Text Indent</label>
+                  <div class="btn-group w-100" role="group">
+                    <input type="checkbox" class="btn-check" id="indentLeft" />
+                    <label class="btn btn-outline-loki btn-sm" for="indentLeft"
+                      ><i class="bi bi-text-indent-left"></i
+                    ></label>
+                    <input type="checkbox" class="btn-check" id="indentRight" />
+                    <label class="btn btn-outline-loki btn-sm" for="indentRight"
+                      ><i class="bi bi-text-indent-right"></i
+                    ></label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <!-- Font Size -->
+                <div class="mb-3">
+                  <label class="form-label small text-muted">Font Size</label>
+                  <select class="form-select form-select-sm" id="fontSize">
+                    <option value="10px">10px</option>
+                    <option value="12px">12px</option>
+                    <option value="14px" selected>14px</option>
+                    <option value="16px">16px</option>
+                    <option value="18px">18px</option>
+                    <option value="20px">20px</option>
+                    <option value="24px">24px</option>
+                    <option value="28px">28px</option>
+                    <option value="32px">32px</option>
+                    <option value="36px">36px</option>
+                    <option value="48px">48px</option>
+                  </select>
+                </div>
+
+                <!-- Text Color -->
+                <div class="mb-3">
+                  <label class="form-label small text-muted">Text Color</label>
+                  <div class="d-flex gap-2">
+                    <input
+                      type="color"
+                      class="form-control form-control-color"
+                      id="textColor"
+                      value="#000000"
+                    />
+                    <button
+                      class="btn btn-outline-secondary btn-sm"
+                      id="resetColor"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small text-muted w-100">Insert</label>
+                <div class="btn-group" role="group">
+                  <input type="checkbox" class="btn-check" id="insertLink" />
+                  <label class="btn btn-outline-loki btn-sm" for="insertLink">
+                    <i class="bi bi-link-45deg"></i
+                  ></label>
+                </div>
+                <div class="btn-group" role="group">
+                  <input type="checkbox" class="btn-check" id="insertImage" />
+                  <label class="btn btn-outline-loki btn-sm" for="insertImage"
+                    ><i class="bi bi-image"></i
+                  ></label>
+                </div>
+                <div class="btn-group" role="group">
+                  <input type="checkbox" class="btn-check" id="insertEmoji" />
+                  <label class="btn btn-outline-loki btn-sm" for="insertEmoji"
+                    ><i class="bi bi-emoji-smile"></i
+                  ></label>
+                </div>
+                <div class="btn-group" role="group">
+                  <input type="checkbox" class="btn-check" id="insertSymbol" />
+                  <label class="btn btn-outline-loki btn-sm" for="insertSymbol"
+                    ><i class="bi bi-circle-square"></i
+                  ></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Control Tools -->
+            <div class="d-none" id="controlTools">
+              <hr />
+              <div class="d-grid gap-2">
+                <button class="btn btn-outline-secondary btn-sm" id="cloneBtn">
+                  <i class="bi bi-copy"></i> Clone
+                </button>
+                <button class="btn btn-outline-danger btn-sm" id="removeBtn">
+                  <i class="bi bi-trash"></i> Delete
+                </button>
+              </div>
+            </div>
+
+            <!-- Default State -->
+            <div id="defaultTools">
+              <div class="text-center text-muted">
+                <i class="bi bi-cursor fs-1 mb-2"></i>
+                <div>Select an element to edit its properties</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const dropZone = document.getElementById("dropZone");
+      const textTools = document.getElementById("textTools");
+      const textStyleTools = document.getElementById("textStyleTools");
+      const imageTools = document.getElementById("imageTools");
+      const buttonTools = document.getElementById("buttonTools");
+      const tableTools = document.getElementById("tableTools");
+      const listTools = document.getElementById("listTools");
+      const spacerTools = document.getElementById("spacerTools");
+      const controlTools = document.getElementById("controlTools");
+      const defaultTools = document.getElementById("defaultTools");
+
+      let selectedElement = null;
+      let elementCounter = 0;
+
+      // Initialize drag and drop for left panel items
+      document.querySelectorAll(".left-panel-item").forEach((item) => {
+        item.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", item.dataset.type);
+        });
+      });
+
+      // Canvas drag and drop handlers
+      canvas.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("drag-over");
+      });
+
+      canvas.addEventListener("dragleave", (e) => {
+        if (!canvas.contains(e.relatedTarget)) {
+          dropZone.classList.remove("drag-over");
+        }
+      });
+
+      canvas.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("drag-over");
+
+        const type = e.dataTransfer.getData("text/plain");
+        createElement(type);
+      });
+
+      function createElement(type) {
+        elementCounter++;
+        let element;
+
+        switch (type) {
+          case "text":
+            element = document.createElement("p");
+            element.textContent = "Click to edit this text";
+            element.contentEditable = "true";
+            element.style.margin = "10px 0";
+            element.style.minHeight = "24px";
+            break;
+
+          case "image":
+            element = document.createElement("img");
+            element.src =
+              "https://via.placeholder.com/300x200?text=Sample+Image";
+            element.alt = "Email image";
+            element.style.maxWidth = "50%";
+            element.style.height = "auto";
+            element.style.display = "block";
+            element.style.margin = "10px auto";
+            break;
+
+          case "button":
+            element = document.createElement("a");
+            element.href = "#";
+            element.textContent = "Click Here";
+            element.className = "btn btn-primary";
+            element.style.display = "inline-block";
+            element.style.margin = "10px 0";
+            element.style.textDecoration = "none";
+            break;
+
+          case "table":
+            element = document.createElement("table");
+            element.className = "email-table";
+            element.innerHTML = createTableHTML(3, 3, true);
+            element.style.margin = "10px 0";
+            break;
+
+          case "list":
+            element = document.createElement("ul");
+            element.className = "email-list";
+            element.innerHTML = createListHTML(3, "ul");
+            element.style.margin = "10px 0";
+            break;
+
+          case "divider":
+            element = document.createElement("hr");
+            element.style.margin = "20px 0";
+            element.style.border = "none";
+            element.style.borderTop = "1px solid #dee2e6";
+            break;
+
+          case "spacer":
+            element = document.createElement("div");
+            element.style.height = "20px";
+            element.style.margin = "0";
+            element.innerHTML = "&nbsp;";
+            break;
+
+          default:
+            return;
+        }
+
+        element.classList.add("paragraph-item");
+        element.dataset.id = `element-${elementCounter}`;
+        element.dataset.type = type;
+
+        // Hide drop zone if this is the first element
+        if (dropZone.style.display !== "none") {
+          dropZone.style.display = "none";
+        }
+
+        // Clear previous selections
+        clearSelection();
+
+        // Add to canvas and select
+        canvas.appendChild(element);
+        selectElement(element);
+
+        // Focus text elements for immediate editing
+        if (type === "text" || type === "button") {
+          element.focus();
+        }
+      }
+
+      function createTableHTML(rows, cols, hasHeader) {
+        let html = "";
+
+        for (let i = 0; i < rows; i++) {
+          html += "<tr>";
+          for (let j = 0; j < cols; j++) {
+            if (i === 0 && hasHeader) {
+              html += `<th contenteditable="true">Header ${j + 1}</th>`;
+            } else {
+              html += `<td contenteditable="true">Cell ${i + 1}-${j + 1}</td>`;
+            }
+          }
+          html += "</tr>";
+        }
+
+        return html;
+      }
+
+      function createListHTML(items, type) {
+        let html = "";
+        for (let i = 0; i < items; i++) {
+          html += `<li contenteditable="true">List item ${i + 1}</li>`;
+        }
+        return html;
+      }
+
+      function selectElement(element) {
+        clearSelection();
+        selectedElement = element;
+        element.classList.add("selected");
+
+        const type = element.dataset.type;
+
+        switch (type) {
+          case "text":
+            showTextTools();
+            break;
+          case "image":
+            showImageTools();
+            break;
+          case "button":
+            showButtonTools();
+            break;
+          case "table":
+            showTableTools();
+            break;
+          case "list":
+            showListTools();
+            break;
+          case "spacer":
+            showSpacerTools();
+            break;
+          default:
+            hideAllTools();
+            break;
+        }
+
+        showControlTools();
+        updateToolStates();
+      }
+
+      function clearSelection() {
+        canvas.querySelectorAll(".paragraph-item").forEach((el) => {
+          el.classList.remove("selected");
+          if (el.tagName === "P" || el.tagName.startsWith("H")) {
+            el.contentEditable = "false";
+          }
+        });
+        selectedElement = null;
+      }
+
+      function showTextTools() {
+        hideAllToolPanels();
+        textTools.classList.remove("d-none");
+        textStyleTools.classList.remove("d-none");
+      }
+
+      function showImageTools() {
+        hideAllToolPanels();
+        imageTools.classList.remove("d-none");
+      }
+
+      function showButtonTools() {
+        hideAllToolPanels();
+        buttonTools.classList.remove("d-none");
+      }
+
+      function showTableTools() {
+        hideAllToolPanels();
+        tableTools.classList.remove("d-none");
+        textStyleTools.classList.remove("d-none");
+      }
+
+      function showListTools() {
+        hideAllToolPanels();
+        listTools.classList.remove("d-none");
+        textStyleTools.classList.remove("d-none");
+      }
+
+      function showSpacerTools() {
+        hideAllToolPanels();
+        spacerTools.classList.remove("d-none");
+      }
+
+      function showControlTools() {
+        controlTools.classList.remove("d-none");
+      }
+
+      function hideAllToolPanels() {
+        textTools.classList.add("d-none");
+        textStyleTools.classList.add("d-none");
+        imageTools.classList.add("d-none");
+        buttonTools.classList.add("d-none");
+        tableTools.classList.add("d-none");
+        listTools.classList.add("d-none");
+        spacerTools.classList.add("d-none");
+        defaultTools.classList.add("d-none");
+      }
+
+      function hideAllTools() {
+        hideAllToolPanels();
+        controlTools.classList.add("d-none");
+        defaultTools.classList.remove("d-none");
+      }
+
+      function updateToolStates() {
+        if (!selectedElement) return;
+
+        if (
+          selectedElement.tagName === "P" ||
+          selectedElement.tagName.startsWith("H")
+        ) {
+          // Update element type radio buttons
+          const tagName = selectedElement.tagName.toLowerCase();
+          document
+            .querySelectorAll('input[name="elementType"]')
+            .forEach((radio) => {
+              radio.checked = false;
+            });
+
+          if (tagName === "p") {
+            document.getElementById("typeP").checked = true;
+          } else if (tagName.startsWith("h")) {
+            const level = tagName.charAt(1);
+            const radio = document.getElementById(`typeH${level}`);
+            if (radio) radio.checked = true;
+          }
+
+          // Update formatting checkboxes
+          const styles = selectedElement.style;
+          document.getElementById("formatBold").checked =
+            styles.fontWeight === "bold";
+          document.getElementById("formatItalic").checked =
+            styles.fontStyle === "italic";
+          document.getElementById("formatUnderline").checked =
+            styles.textDecoration.includes("underline");
+          document.getElementById("formatStrike").checked =
+            styles.textDecoration.includes("line-through");
+
+          // Update alignment
+          document
+            .querySelectorAll('input[name="textAlign"]')
+            .forEach((radio) => {
+              radio.checked = false;
+            });
+          const align = styles.textAlign || "left";
+          const alignRadio = document.getElementById(
+            `align${align.charAt(0).toUpperCase() + align.slice(1)}`
+          );
+          if (alignRadio) alignRadio.checked = true;
+
+          // Update indent checkboxes
+          document.getElementById("indentLeft").checked =
+            parseFloat(styles.textIndent) > 0;
+          document.getElementById("indentRight").checked =
+            parseFloat(styles.textIndent) < 0;
+
+          // Update font size
+          const currentSize = styles.fontSize || "14px";
+          document.getElementById("fontSize").value = currentSize;
+
+          // Update text color
+          const currentColor = styles.color || "#000000";
+          document.getElementById("textColor").value =
+            rgbToHex(currentColor) || "#000000";
+        }
+
+        if (selectedElement.tagName === "IMG") {
+          document.getElementById("imageUrl").value = selectedElement.src;
+          document.getElementById("imageSize").value =
+            selectedElement.style.maxWidth || "50%";
+        }
+
+        if (selectedElement.tagName === "button") {
+          selectedElement.tagName.getElementById("buttonText").value =
+            selectedElement.textContent || "";
+          document.getElementById("buttonUrl").value =
+            selectedElement.href || "";
+
+          // Get button style class
+          const className = selectedElement.className;
+          const styleMatch = className.match(
+            /btn-(primary|secondary|success|danger)/
+          );
+          if (styleMatch) {
+            document.getElementById("buttonStyle").value = styleMatch[0];
+          }
+        }
+        if (selectedElement.tagName === "A") {
+          document.getElementById("buttonText").value =
+            selectedElement.textContent || "";
+          document.getElementById("buttonUrl").value =
+            selectedElement.href || "";
+
+          // Get button style class
+          const className = selectedElement.className;
+          const styleMatch = className.match(
+            /btn-(primary|secondary|success|danger)/
+          );
+          if (styleMatch) {
+            document.getElementById("buttonStyle").value = styleMatch[0];
+          }
+        }
+
+        if (selectedElement.tagName === "TABLE") {
+          const rows = selectedElement.querySelectorAll("tr").length;
+          const cols =
+            selectedElement.querySelectorAll("tr")[0]?.children.length || 0;
+          const hasHeader = selectedElement.querySelector("th") !== null;
+
+          document.getElementById("tableRows").value = rows;
+          document.getElementById("tableCols").value = cols;
+          document.getElementById("tableHeader").checked = hasHeader;
+        }
+
+        if (
+          selectedElement.tagName === "UL" ||
+          selectedElement.tagName === "OL"
+        ) {
+          const items = selectedElement.querySelectorAll("li").length;
+          document.getElementById("listType").value =
+            selectedElement.tagName.toLowerCase();
+          document.getElementById("listItems").value = items;
+        }
+
+        if (selectedElement.dataset.type === "spacer") {
+          document.getElementById("spacerHeight").value =
+            selectedElement.style.height || "20px";
+        }
+      }
+
+      // Helper function to convert RGB to Hex
+      function rgbToHex(rgb) {
+        if (rgb.startsWith("#")) return rgb;
+        const result = rgb.match(/\d+/g);
+        if (!result) return "#000000";
+        return (
+          "#" +
+          result.map((x) => parseInt(x).toString(16).padStart(2, "0")).join("")
+        );
+      }
+
+      // Element selection
+      canvas.addEventListener("click", (e) => {
+        if (e.target.classList.contains("paragraph-item")) {
+          selectElement(e.target);
+          e.stopPropagation();
+        } else if (e.target === canvas) {
+          clearSelection();
+          hideAllTools();
+        }
+      });
+
+      // Click outside to deselect
+      document.addEventListener("click", (e) => {
+        if (
+          !canvas.contains(e.target) &&
+          !document.getElementById("toolsPanel").contains(e.target)
+        ) {
+          clearSelection();
+          hideAllTools();
+        }
+      });
+
+      // Text element type change
+      document
+        .querySelectorAll('input[name="elementType"]')
+        .forEach((radio) => {
+          radio.addEventListener("change", () => {
+            if (
+              !selectedElement ||
+              (!selectedElement.tagName.startsWith("H") &&
+                selectedElement.tagName !== "P" &&
+                selectedElement.tagName !== "A")
+            )
+              return;
+
+            const newTagType = radio.id.replace("type", "").toLowerCase();
+            let newElement;
+
+            if (newTagType === "link") {
+              newElement = document.createElement("a");
+              newElement.href = "#";
+              newElement.textContent =
+                selectedElement.textContent || "Link text";
+              document.getElementById("linkSection").classList.remove("d-none");
+            } else {
+              newElement = document.createElement(newTagType);
+              newElement.textContent =
+                selectedElement.textContent || selectedElement.innerText;
+              document.getElementById("linkSection").classList.add("d-none");
+            }
+
+            // Copy styling and attributes
+            newElement.className = selectedElement.className;
+            newElement.style.cssText = selectedElement.style.cssText;
+            newElement.contentEditable = "true";
+
+            // Replace element
+            selectedElement.replaceWith(newElement);
+            selectedElement = newElement;
+            newElement.focus();
+          });
+        });
+
+      // Text formatting
+      document.getElementById("formatBold").addEventListener("change", (e) => {
+        if (selectedElement) {
+          selectedElement.style.fontWeight = e.target.checked
+            ? "bold"
+            : "normal";
+        }
+      });
+
+      document
+        .getElementById("formatItalic")
+        .addEventListener("change", (e) => {
+          if (selectedElement) {
+            selectedElement.style.fontStyle = e.target.checked
+              ? "italic"
+              : "normal";
+          }
+        });
+
+      document
+        .getElementById("formatUnderline")
+        .addEventListener("change", (e) => {
+          if (selectedElement) {
+            const currentDecoration = selectedElement.style.textDecoration;
+            if (e.target.checked) {
+              if (!currentDecoration.includes("underline")) {
+                selectedElement.style.textDecoration =
+                  currentDecoration + " underline";
+              }
+            } else {
+              selectedElement.style.textDecoration = currentDecoration
+                .replace("underline", "")
+                .trim();
+            }
+          }
+        });
+
+      document
+        .getElementById("formatStrike")
+        .addEventListener("change", (e) => {
+          if (selectedElement) {
+            const currentDecoration = selectedElement.style.textDecoration;
+            if (e.target.checked) {
+              if (!currentDecoration.includes("line-through")) {
+                selectedElement.style.textDecoration =
+                  currentDecoration + " line-through";
+              }
+            } else {
+              selectedElement.style.textDecoration = currentDecoration
+                .replace("line-through", "")
+                .trim();
+            }
+          }
+        });
+
+      // Text alignment
+      document.querySelectorAll('input[name="textAlign"]').forEach((radio) => {
+        radio.addEventListener("change", () => {
+          if (selectedElement) {
+            const alignment = radio.id.replace("align", "").toLowerCase();
+            selectedElement.style.textAlign = alignment;
+          }
+        });
+      });
+
+      // Text indent
+      document.getElementById("indentLeft").addEventListener("change", (e) => {
+        if (selectedElement) {
+          if (e.target.checked) {
+            selectedElement.style.textIndent = "20px";
+            document.getElementById("indentRight").checked = false;
+          } else {
+            selectedElement.style.textIndent = "0px";
+          }
+        }
+      });
+
+      document.getElementById("indentRight").addEventListener("change", (e) => {
+        if (selectedElement) {
+          if (e.target.checked) {
+            selectedElement.style.textIndent = "-20px";
+            document.getElementById("indentLeft").checked = false;
+          } else {
+            selectedElement.style.textIndent = "0px";
+          }
+        }
+      });
+
+      // Font size
+      document.getElementById("fontSize").addEventListener("change", (e) => {
+        if (selectedElement) {
+          selectedElement.style.fontSize = e.target.value;
+        }
+      });
+
+      // Text color
+      document.getElementById("textColor").addEventListener("change", (e) => {
+        if (selectedElement) {
+          selectedElement.style.color = e.target.value;
+        }
+      });
+
+      document.getElementById("resetColor").addEventListener("click", () => {
+        if (selectedElement) {
+          selectedElement.style.color = "";
+          document.getElementById("textColor").value = "#000000";
+        }
+      });
+
+      // Image tools
+      document.getElementById("updateImage").addEventListener("click", () => {
+        if (selectedElement && selectedElement.tagName === "IMG") {
+          const url = document.getElementById("imageUrl").value;
+          if (url) {
+            selectedElement.src = url;
+          }
+        }
+      });
+
+      document.getElementById("imageSize").addEventListener("change", (e) => {
+        if (selectedElement && selectedElement.tagName === "IMG") {
+          selectedElement.style.maxWidth = e.target.value;
+        }
+      });
+
+      // Image alignment
+      document.querySelectorAll('input[name="imgAlign"]').forEach((radio) => {
+        radio.addEventListener("change", () => {
+          if (selectedElement && selectedElement.tagName === "IMG") {
+            if (radio.id === "imgAlignLeft") {
+              selectedElement.style.display = "block";
+              selectedElement.style.margin = "10px auto 10px 0";
+            } else if (radio.id === "imgAlignCenter") {
+              selectedElement.style.display = "block";
+              selectedElement.style.margin = "10px auto";
+            } else if (radio.id === "imgAlignRight") {
+              selectedElement.style.display = "block";
+              selectedElement.style.margin = "10px 0 10px auto";
+            }
+          }
+        });
+      });
+
+      // Image shape
+      document.querySelectorAll('input[name="imgShape"]').forEach((radio) => {
+        radio.addEventListener("change", () => {
+          if (selectedElement && selectedElement.tagName === "IMG") {
+            if (radio.id === "shapeDefault") {
+              selectedElement.style.borderRadius = "0";
+            } else if (radio.id === "shapeRounded") {
+              selectedElement.style.borderRadius = "12px"; // rounded corners
+            } else if (radio.id === "shapeCircle") {
+              selectedElement.style.borderRadius = "50%"; // circle
+            }
+          }
+        });
+      });
+
+      // Button tools
+      document.getElementById("buttonText").addEventListener("input", (e) => {
+        if (selectedElement && selectedElement.dataset.type === "button") {
+          selectedElement.textContent = e.target.value;
+        }
+      });
+
+      document.getElementById("buttonUrl").addEventListener("input", (e) => {
+        if (selectedElement && selectedElement.dataset.type === "button") {
+          selectedElement.href = e.target.value;
+        }
+      });
+
+      document.getElementById("buttonStyle").addEventListener("change", (e) => {
+        if (selectedElement && selectedElement.dataset.type === "button") {
+          // Remove existing btn-* classes
+          selectedElement.className = selectedElement.className.replace(
+            /btn-(primary|secondary|success|danger)/g,
+            ""
+          );
+          // Add new style class
+          selectedElement.className += ` ${e.target.value}`;
+          selectedElement.className = selectedElement.className.trim();
+        }
+      });
+
+      // Table tools
+      document.getElementById("updateTable").addEventListener("click", () => {
+        if (selectedElement && selectedElement.tagName === "TABLE") {
+          const rows = parseInt(document.getElementById("tableRows").value, 10);
+          const cols = parseInt(document.getElementById("tableCols").value, 10);
+
+          // prevent empty or invalid input from crashing
+          if (!rows || !cols) return;
+
+          const newTableHTML = createTableHTML(rows, cols);
+          const newTable = document.createElement("table");
+          newTable.innerHTML = newTableHTML;
+
+          newTable.style.width = selectedElement.style.width || "100%";
+          newTable.style.borderCollapse =
+            selectedElement.style.borderCollapse || "collapse";
+          newTable.style.border =
+            selectedElement.style.border || "1px solid #ddd";
+
+          selectedElement.replaceWith(newTable);
+          selectElement(newTable);
+        }
+      });
+
+      // List tools
+      document.getElementById("updateList").addEventListener("click", () => {
+        if (
+          selectedElement &&
+          (selectedElement.tagName === "UL" || selectedElement.tagName === "OL")
+        ) {
+          const items = parseInt(document.getElementById("listItems").value);
+          const type = document.getElementById("listType").value;
+
+          // Create new list element with correct type
+          const newElement = document.createElement(type);
+          newElement.className = selectedElement.className;
+          newElement.style.cssText = selectedElement.style.cssText;
+          newElement.innerHTML = createListHTML(items, type);
+
+          selectedElement.replaceWith(newElement);
+          selectedElement = newElement;
+        }
+      });
+
+      // Spacer tools
+      document
+        .getElementById("spacerHeight")
+        .addEventListener("change", (e) => {
+          if (selectedElement && selectedElement.dataset.type === "spacer") {
+            selectedElement.style.height = e.target.value;
+          }
+        });
+
+      // Control tools
+      document.getElementById("cloneBtn").addEventListener("click", () => {
+        if (selectedElement) {
+          const clone = selectedElement.cloneNode(true);
+          clone.dataset.id = `element-${++elementCounter}`;
+          canvas.insertBefore(clone, selectedElement.nextSibling);
+          selectElement(clone);
+        }
+      });
+
+      document.getElementById("removeBtn").addEventListener("click", () => {
+        if (selectedElement) {
+          selectedElement.remove();
+          selectedElement = null;
+          hideAllTools();
+
+          // Show drop zone if no elements left
+          if (canvas.querySelectorAll(".paragraph-item").length === 0) {
+            clearCanvas();
+          }
+        }
+      });
+
+      // Prevent text elements from losing focus when clicking tools
+      document
+        .getElementById("toolsPanel")
+        .addEventListener("mousedown", (e) => {
+          // Allow normal behavior for interactive controls
+          if (e.target.closest("input, select, textarea, button, label"))
+            return;
+          // Otherwise, prevent the click from stealing focus from the canvas text
+          e.preventDefault();
+        });
+
+      // Initialize
+      hideAllTools();
+    </script>
+
+    <!-- ======= Theme ======= -->
+    <loki-theme
+      class="btn-loki position-fixed bottom-0 end-0 mb-3 me-3 rounded-2"
+    ></loki-theme>
+
+    <!-- Vendor JS Files -->
+    <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Template Main JS File -->
+    <script type="module" src="../assets/js/loki.js"></script>
+  </body>
+</html>

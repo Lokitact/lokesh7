@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  data-loki-theme="auto"
+  data-loki-theme-color="green"
+  class="h-100"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>My Projects</title>
+
+    <!-- Favicons -->
+    <link href="./assets/img/favicon.png" rel="icon" />
+    <link href="./assets/img/favicon.png" rel="apple-touch-icon" />
+
+    <!-- Vendor CSS Files -->
+    <link href="./assets/vendor/aos/aos.css" rel="stylesheet" />
+    <link
+      href="./assets/vendor/bootstrap/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="./assets/vendor/bootstrap-icons/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="./assets/vendor/glightbox/css/glightbox.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="./assets/vendor/swiper/swiper-bundle.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Main CSS File -->
+    <link href="./assets/css/style.css" rel="stylesheet" />
+    <link href="./assets/css/loki.css" rel="stylesheet" />
+
+    <script>
+      document.documentElement.setAttribute(
+        "data-loki-theme-color",
+        localStorage.getItem("data-loki-theme-color")
+      );
+      document.documentElement.setAttribute(
+        "data-loki-theme",
+        localStorage.getItem("theme")
+      );
+      document.documentElement.setAttribute(
+        "data-bs-theme",
+        localStorage.getItem("theme")
+      );
+    </script>
+  </head>
+
+  <body class="d-flex flex-column h-100">
+    <div class="container py-5">
+      <h2 class="mb-4 text-center">My Projects</h2>
+      <div class="text-center mb-4">
+        <input
+          type="search"
+          id="project-search"
+          class="form-control form-control-lg w-50 m-auto"
+          placeholder="Search projects..."
+        />
+      </div>
+
+      <div id="project-list" class="row g-4 justify-content-center"></div>
+    </div>
+
+    <!-- bottom Button -->
+    <div class="bottom-container">
+      <a href="#" class="bottom-content"><i class="bi bi-arrow-up"></i></a>
+    </div>
+    <!-- ======= Theme ======= -->
+    <loki-theme
+      class="btn-loki d-none position-fixed bottom-0 end-0 mb-3 me-3 rounded-2 z-3"
+    ></loki-theme>
+
+    <!-- ======= Footer ======= -->
+    <loki-footer class="mt-auto loki-fill-ter"></loki-footer>
+
+    <script type="module">
+      import projectList from "./assets/data/projects.js";
+
+      const container = document.querySelector(".row.justify-content-center");
+      const searchInput = document.getElementById("project-search");
+
+      const renderProjects = (filter = "") => {
+        container.innerHTML = "";
+        projectList
+          .filter(
+            (p) =>
+              p.title.toLowerCase().includes(filter.toLowerCase()) ||
+              p.desc.toLowerCase().includes(filter.toLowerCase())
+          )
+          .forEach((project, index) => {
+            const card = `
+          <div class="col-sm-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-delay="${
+            index * 100
+          }">
+            <div class="card border-loki h-100">
+              <div class="card-header border-loki text-center">Project ${
+                index + 1
+              }</div>
+              <div class="card-body text-center">
+                <div class="p-4 rounded bg-body-tertiary m-2"><i class="${project.icon} fs-2"></i></div>
+                <h5 class="card-title">${project.title}</h5>
+                <p class="card-text">${project.desc}</p>
+              </div>
+              <div class="card-footer text-center border-loki">
+                <a href="${project.link}" class="btn btn-loki">Open</a>
+              </div>
+            </div>
+          </div>`;
+            container.insertAdjacentHTML("beforeend", card);
+          });
+      };
+
+      searchInput.addEventListener("input", () => {
+        renderProjects(searchInput.value);
+      });
+
+      renderProjects(); // initial load
+    </script>
+
+    <!-- Vendor JS Files -->
+    <script src="./assets/vendor/purecounter/purecounter.js"></script>
+    <script src="./assets/vendor/aos/aos.js"></script>
+    <script src="./assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="./assets/vendor/glightbox/js/glightbox.min.js"></script>
+    <script src="./assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+    <script src="./assets/vendor/swiper/swiper-bundle.min.js"></script>
+    <script src="./assets/vendor/typed-js/typed.min.js"></script>
+    <script src="./assets/vendor/waypoints/noframework.waypoints.js"></script>
+
+    <!-- Main JS File -->
+    <script src="./assets/js/main.js"></script>
+    <script type="module" src="./assets/js/loki.js"></script>
+  </body>
+</html>
